@@ -111,6 +111,7 @@ We can a REST API since it's wedelly used and supported. A system like this one 
 We will use public cloud since it's
 
 
+![image](https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/2782da29-b3d9-4118-b632-a99611c47507)
 
 
 ### Limitations
