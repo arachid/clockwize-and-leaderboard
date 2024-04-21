@@ -145,7 +145,7 @@ We use NodeJS for game service since it supports web sockets and real-time solut
 
 **Score Aggregator:** Subscribe to new scores, aggregate the result and pre-process the scores for the different time frames: recent, weekly, monthly and all-time leaderboard. That way, the pre-processed result returns fast when the users query scores. Apache Spark is indeed well-suited for real-time stream processing, especially when used in combination with Apache Kafka. 
 
-**LeaderBoard Redis Cluster:** Redis offers a great set of data management solutions. It's the most popular solution for in-memory caching, offers persistence and many other tools.
+**Leaderboard Redis Cluster:** Redis offers a great set of data management solutions. It's the most popular solution for in-memory caching, offers persistence and many other tools.
 We will have a replication set for high availability that replicates the data from the primary nodes. If a primary node crashes, a replica can be elected to take its place and achieve high availability. 
 To scale horizontally our cluster, we can use sharding.
 
@@ -181,7 +181,7 @@ Modern hardware can easily handle 16 GB of memory in one machine. However, we wi
 
 To handle multiple queries simultaneously, Redis uses an [event-loop architecture](https://en.wikipedia.org/wiki/Event_loop), well-suited to handling thousands of requests per second per [redis node](https://redis.io/docs/latest/develop/reference/clients/).
 
-**Reconciliation: ** We can set up a daily cron job that replays some score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system consistency and detect bugs.
+**Reconciliation:** We can set up a daily cron job that replays some score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system consistency and detect bugs.
 
 ### Follow Up
 
