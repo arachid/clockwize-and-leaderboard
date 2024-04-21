@@ -155,13 +155,14 @@ to achieve add, remove, or update scores in a speedy way (in approximately a O(l
 Let's do some **rough estimation** to see if our leaderboard can fit in memory.
 
 The leaderboard will consist of a list of eliminations/scores:
-
-`[
+```
+[
 	{ userdId: 1777737510428868608, score: 127312, rank: 1 },
  	{ userdId: 1723137510428863231, score: 127300, rank: 2 },
   	{ userdId: 1232737510428123234, score: 127200, rank: 3 }
    	...
-]`
+]
+```
 
 A score looks like this:
 1-userId: snowflake id of size 8 bytes
