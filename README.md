@@ -167,15 +167,15 @@ A score looks like this:
 - score: an integer of 32 bits
 - rank: an integer of 32 bits
 
-Total size per score entry ~ 128 bits ~ 16 bytes
+`Total size per score entry ~ 64 bits + 32 bits + 32 bits ~ 128 bits ~ 16 bytes`
 
 Interesting fact: 500 million users represent the number of registered users in Fortnite (active and inactive combined). Let's use this number for our estimation.
 
 `500 000 000 * 16bytes = 8 GB`
 
-To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can double the size to 16 GB for the pointers, indexes and other overheads.
+To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can double the size to **16 GB** for the pointers, indexes and other overheads.
 
-Modern hardware can easily handle 16 GB of memory in one machine. However, we will use multiple machines for redundancy in our Redis cluster. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. Our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of users for a major game like Fortnite with low latency.
+Modern hardware can easily handle **16 GB** of memory in one machine. However, we will use multiple machines for redundancy in our Redis cluster. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. Our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of users for a major game like Fortnite with low latency.
 
 To handle multiple queries simultaneously, Redis uses an [event-loop architecture](https://en.wikipedia.org/wiki/Event_loop), well-suited to handling thousands of requests per second per [redis node](https://redis.io/docs/latest/develop/reference/clients/).
 
