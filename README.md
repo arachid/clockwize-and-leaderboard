@@ -10,9 +10,11 @@ appended in clockwise order.
     }
 
 For instance, the 3x4 matrix below:
-`2, 3, 4, 8
+``
+2, 3, 4, 8
 5, 7, 9, 12
-1, 0, 6, 10`
+1, 0, 6, 10
+``
 We would make a string like this “2, 3, 4, 8, 12, 10, 6, 0, 1, 5, 7, 9”.
 
 This problem can be solved iterativly and also recusivly. We decided to go with the recusive approach to make the code consise and easy to read. We simply traverse to array and when we hit a size bandory or a visited cell, we change direction following clock directions. When we can't move anymore, the recursion end.
