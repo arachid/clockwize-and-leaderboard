@@ -124,7 +124,7 @@ We can use a REST API since it's widely used and supported. A system like this o
 
 Here is a high-level design of our architecture.
 
-![image](https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/e0bb9a1f-ad99-441e-82c8-80a426b48526)
+<img width="966" alt="Screenshot 2024-04-21 at 2 45 18 PM" src="https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/4c4a138a-95cc-45f2-84b2-cc29ce335c6d">
 
 We will use a distributed architecture to serve a scalable and fault-tolerant solution. We are going to use AWS as
 our cloud provider solution. It offers us multiple solutions out of the box and data centers worldwide to serve our users with low latency.
