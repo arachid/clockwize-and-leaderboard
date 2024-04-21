@@ -114,8 +114,8 @@ Here is a high level design of our architecture.
 
 ![image](https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/2782da29-b3d9-4118-b632-a99611c47507)
 
-We are going to use a distributed architecture to be able to serve a scalable and fault-tolerant solution. We are going to use AWS as
-our cloud hosting solution. It offers us a couple of solutions out of the box and multiple data centers across the world to serve our users with low latency.
+We will use a distributed architecture to serve a scalable and fault-tolerant solution. We are going to use AWS as
+our cloud hosting solution. It offers us multiple solutions out of the box and data centers worldwide to serve our users with low latency.
 
 **Client:** The Client is the local machine of the users who play the game. Depending on the type of game, it can be a computer or a mobile device.
 
@@ -123,23 +123,23 @@ our cloud hosting solution. It offers us a couple of solutions out of the box an
 
 **Gateway:** We will use AWS ALB as a gateway solution. It offers us HTTPS support for secure communication and load balancing.
 
-**Game Server:** The game server hosts the game match. Every player playing the same match is connected to the same server. A table maintains a map between the match and the server's URI to route the users to the correct server. The game server can scale on demand, and we can add or remove the server from our table. We will need bi-directional communication to achieve real-time. The Game server will keep the game score in memory for fast read and write. As mentioned, in gaming, the low-latency is crucial. While keeping the score in memory, we write through the disk using the [write-ahead log](https://en.wikipedia.org/wiki/Write-ahead_logging) technique to throw the disk. That way, we can persist the score on the disk in case of a crash. Once the match finish, the game server post the score to the Leaderboard Microservice. We can only trust our internal Game Server to update the score since we can't blindly trust the score coming from the client side. 
+**Game Server:** The game server hosts the game match. Every player playing the same match is connected to the same server. A table maintains a map between the match and the server's URI to route the users to the correct server. The game server can scale on demand, and we can add or remove the server from our table. We will need bi-directional communication to achieve real-time. The Game server will keep the game score in-memory for fast read/write. While keeping the score in memory, we write through the disk using the [write-ahead log](https://en.wikipedia.org/wiki/Write-ahead_logging) technique to throw a write event on the disk. That way, the persisted logs can be replayed, and we can obtain the score even if the game server crashes. Once the match finishes, the game server posts the score to the Leaderboard Microservice. We can only trust our internal Game Server to update the score since we can't blindly trust the score coming from the client side. 
 
 We use NodeJS for game service since it supports web sockets and real-time solutions. In addition, Nodejs servers use an Even-Loop architecture that lets them handle thousands of requests and connections per minute.
 
-**Leaderboard Microservice:** This microservice operates CRUD on the leaderboard scores. On each Score update, it publishes it to a Kafka Queue. Using this asynchronous communication lets us write faster. For this service, the technologies used to write this microservice does not matter that much. Since Java has great frameworks for implementing microservices like Spring Cloud, we decided to go with this stack here.
+**Leaderboard Microservice:** This microservice operates CRUD on the leaderboard scores. On each Score update, it publishes it to a Kafka Queue. Using this asynchronous communication lets us write faster. The technologies used to write this microservice only matter a little for this service. Since Java has great frameworks for implementing microservices like Spring Cloud, we decided to go with this stack here.
 
-**Score Queue: ** This is used to collect the score. We are using Kafka because it's a popular and reliable solution for streaming messages. By using a queue, we can scale independently our producers (Leaderboard Service) and our consumers (Score Agregatore).
+**Score Queue:** This is used to collect the score. We are using Kafka because it's a popular and reliable solution for streaming messages. Using a queue, we can independently scale our producers (Leaderboard Service) and our consumers (Score Agregatore). Kafka offers scalability using its partition system and high availability with partition replications.
 
-**Score Aggregator:** Subscribe to new scores, aggregate the result and pre-proccess the scores for the different time frame: weekly, monthly and all time leaderboard. That way, when the users query leaderboards, the pre-proccessed result returns fast.
+**Score Aggregator:** Subscribe to new scores, aggregate the result and pre-process the scores for the different time frames: weekly, monthly and all-time leaderboard. That way, the pre-processed result returns fast when the user's query leaderboards. Apache Spark is indeed well-suited for real-time stream processing, especially when used in combination with Apache Kafka. 
 
-**LeaderBoard Redis Cluster:** Redis offers a great set of data management solutions. It's the most popular solution for in-memory caching and also offers a persistence solution. 
+**LeaderBoard Redis Cluster:** Redis offers a great set of data management solutions. It's the most popular solution for in-memory caching and offers a persistence solution. 
 
-For high availability, we will have a replication set that replicates the data on the primary nodes. If a primary node crashes, a replica can be elected to take its place and 
+We will have a replication set for high availability that replicates the data from the primary nodes. If a primary node crashes, a replica can be elected to take its place and achieve high availability.
 
 TODO calculation Sorted SEt:
 
-**Reconciliation: ** At the end of the day, we can replay the score updates from our Kafka queue and verify that the score matches what we have on the database. That way, we can monitor the reliability of our system.
+**Reconciliation: ** We can set up a daily cron job that replays the score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system's reliability.
 
 
 ### Follow Up
