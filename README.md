@@ -46,9 +46,9 @@ Leaderboards are in almost any multiplayer video game. We have a task to design 
 
 ### Entities
 
-1- Game:  represent a specific game. It can be Fortnite, League of Legends or any other game.
-2- Match: match for a specific game.
-3- Score: consist of the three properties:
+- Game:  represent a specific game. It can be Fortnite, League of Legends or any other game.
+- Match: match for a specific game.
+- Score: consist of the three properties:
     {
 	    userId: the id of the player
 	    score: the number of eliminations and other points
@@ -121,7 +121,7 @@ We can use a REST API since it's widely used and supported. A system like this o
 
 Here is a high-level design of our architecture.
 
-<img width="966" alt="image" src="https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/6c9b1623-3459-4348-8331-7363a70ce670">
+![image](https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/e0bb9a1f-ad99-441e-82c8-80a426b48526)
 
 We will use a distributed architecture to serve a scalable and fault-tolerant solution. We are going to use AWS as
 our cloud provider solution. It offers us multiple solutions out of the box and data centers worldwide to serve our users with low latency.
