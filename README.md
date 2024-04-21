@@ -162,7 +162,7 @@ The leaderboard will consist of a list of eliminations/scores:
 ]
 ```
 
-A score looks like this:
+The size of each propertie:
 - userId: a [Twitter snowflake](https://en.wikipedia.org/wiki/Snowflake_ID) id of size 64 bits
 - score: an integer of 32 bits
 - rank: an integer of 32 bits
