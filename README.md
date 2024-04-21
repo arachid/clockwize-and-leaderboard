@@ -46,26 +46,27 @@ Leaderboards are in almost any multiplayer video game. We have a task to design 
 
 ### Entities
 
-- Game:  represent a specific game. It can be Fortnite, League of Legends or any other game.
-- Match: match for a specific game.
-- Score: consist of the three properties:
-    {
+- **Game:**  represents a specific game. It can be Fortnite, League of Legends or any other game.
+- **Match:** match for a specific game.
+- **Leaderboard:** a set of scores related to the same purpose: same game, same match, same friend group or same timeframe...
+- **Score:** consist of the three properties:
+	{
 	    userId: the id of the player
 	    score: the number of eliminations and other points
 	    rank: his global rank for this specific leaderboard.
-    }
+	}
 
 ### API
 
-We can use a REST API since it's widely used and supported. A system like this one can have many endpoints: login, fetching user information, and fetching game information. But we will focus on the four primary endpoints: creating a leaderboard, updating the score of a leaderboard, fetching leaderboards and fetching scores. All the endpoints require authentification, and our backend will verify that a specific user is authorized to access/update this leaderboard.
+We can use a REST API since it's widely used and supported. A system like this one can have many endpoints: login, fetching user information, and fetching game information. But we will focus on the four primary endpoints: creating a leaderboard, updating the score of a leaderboard, fetching leaderboards and fetching scores. All the endpoints require authentification, and our backend will verify that a specific user is authorized to access this leaderboard.
 
-**Create a new leaderboard:** This endpoint is used to create a leaderboard. A leaderboard can be created for multiple purposes. For one specific game, for a group of friends, etc...
+**Create a new leaderboard:** This endpoint is used to create a leaderboard. A leaderboard can be created for multiple purposes, such as a global all-time game, a weekly leaderboard, a private group of friends, etc. We will restrict access to creating an all-time leaderboard and other big leaderboards only internally since they consume a lot of resources.
 
     POST /v1/games/{gameId}/leaderboards
     
     Request body: {
     	    type: "PRIVATE" | "PUBLIC" | "TOURNAMENT"...
-	    members: userId[] // optional field, only used if it's a private game between friends
+	    members: userId[] // optional field, only used if it's a private group between friends
     }
     
     Response body: {
