@@ -133,21 +133,47 @@ We use NodeJS for game service since it supports web sockets and real-time solut
 
 **Score Aggregator:** Subscribe to new scores, aggregate the result and pre-process the scores for the different time frames: weekly, monthly and all-time leaderboard. That way, the pre-processed result returns fast when the user's query leaderboards. Apache Spark is indeed well-suited for real-time stream processing, especially when used in combination with Apache Kafka. 
 
-**LeaderBoard Redis Cluster:** Redis offers a great set of data management solutions. It's the most popular solution for in-memory caching and offers a persistence solution. 
+**LeaderBoard Redis Cluster:** Redis offers a great set of data management solutions. It's the most popular solution for in-memory caching and offers persistence and many other tools.
+We will have a replication set for high availability that replicates the data from the primary nodes. If a primary node crashes, a replica can be elected to take its place and achieve high availability. 
 
-We will have a replication set for high availability that replicates the data from the primary nodes. If a primary node crashes, a replica can be elected to take its place and achieve high availability.
+We will be using [Redis Sorted Set](https://redis.io/docs/latest/develop/data-types/sorted-sets/) to achieve fast retrieval for top K scores, specific user scores and fast score updates. Redis utilizes an in-memory HashMap and a skip list
+to achieve add, remove, or update scores in a speedy way (in a O(log n) when n is the number of elements)
 
-TODO calculation Sorted SEt:
+Let's do some **rough estimation** to see if our leaderboard can fit in memory.
+
+The leaderboard will consist of a list of eliminations/scores:
+
+`[
+	{ userdId: 1777737510428868608, score: 127312, rank: 1 },
+ 	{ userdId: 1723137510428863231, score: 127300, rank: 2 },
+  	{ userdId: 1232737510428123234, score: 127200, rank: 3 }
+   	...
+]`
+
+A score looks like this:
+1-userId: snowflake id of size 8 bytes
+2-score: an integer of 4 bytes
+3-rank: an integer of 4 bytes
+
+Total size per score: 16 byte
+
+Since our requirement is 10 million concurrent users, we can assume that the total number of users is 50 times that, so 500 million users. By the way, 500 million users represent the number of registered users in Fortnite.
+
+500 000 000 * 16bytes = 8 GB
+
+To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can double the size to 16 GB for the pointers, indexes and other overhead.
+
+Modern hardware can easily handle the 16 gigs of memory load. 16 gigs are our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. Obviously, we can optimize that, we don't need to load un-active users. But, our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions with low latency.
+
 
 **Reconciliation: ** We can set up a daily cron job that replays the score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system's reliability.
 
 
 ### Follow Up
 
-We can easily spend days designing the perfect leaderboard. But, since it's 4-5 hours of exercise, we defined requirements, our API and a high-level architecture. There are a few things that we could dive deep into if we had additional time:
+We can easily spend weeks designing the perfect leaderboard system. But, since it's a 4-5 hour exercise, we defined requirements, our API and a high-level architecture. There are a few things that we can dive deeper into if we had additional time:
 
 -Using geo-sharding to scale our database and keep the data closer to the users geographically
--Deep dive into how Redis Sorted Set uses Skip tables to give access to the top K score in a case-constant time.
--Partionne will use our Kafka cluster to guarantee the order and the deliveries of the message to our Redis Cluster.
-
-
+-Deep dive into how Redis Sorted Set uses Skip tables to access the top K score in an O(K) time and makes score updates in an O(log n), making it very efficient.
+-Define a partition strategy in our Kafka cluster to guarantee the order of message delivery to our Redis Cluster and consistent score
+-Other features: Authentication and fetching user info (name, picture, country) while fetching its score.
