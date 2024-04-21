@@ -165,19 +165,19 @@ The leaderboard will consist of a list of eliminations/scores:
 ```
 
 A score looks like this:
-1-userId: snowflake id of size 8 bytes
-2-score: an integer of 4 bytes
-3-rank: an integer of 4 bytes
+- userId: a [Twitter snowflake](https://en.wikipedia.org/wiki/Snowflake_ID) id of size 8 bytes
+- score: an integer of 4 bytes
+- rank: an integer of 4 bytes
 
 Total size per score: 16 byte
 
 Since our requirement is 10 million concurrent users, we can assume that the total number of users is 50 times that, so 500 million users. By the way, 500 million users represent the number of registered users in Fortnite.
 
-500 000 000 * 16bytes = 8 GB
+`500 000 000 * 16bytes = 8 GB`
 
 To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can double the size to 16 GB for the pointers, indexes and other overhead.
 
-Modern hardware can easily handle 16 GB of memory load. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. We can optimize that; we don't need to load inactive users. However, our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of entries for a major game like Fortnite with low latency.
+Modern hardware can easily handle 16 GB of memory. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. We can optimize that; we don't need to load inactive users. However, our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of entries for a major game like Fortnite with low latency.
 
 **Reconciliation: ** We can set up a daily cron job that replays some score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system consistency and detect bugs.
 
