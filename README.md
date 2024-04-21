@@ -110,12 +110,34 @@ We can a REST API since it's wedelly used and supported. A system like this one 
 
 ### Architecture
 
-We will use public cloud since it's
-
+Here is a high level design of our architecture.
 
 ![image](https://github.com/arachid/clockwize-and-leaderboard/assets/29342184/2782da29-b3d9-4118-b632-a99611c47507)
 
+We are going to use a distributed architecture to be able to serve a scalable and fault-tolerant solution. We are going to use AWS as
+our cloud hosting solution. It offers us a couple of solutions out of the box and multiple data centers across the world to serve our users with low latency.
 
-### Limitations
+**Client:** The Client is the local machine of the users who play the game. Depending on the type of game, it can be a computer or a mobile device.
 
-Since, it's a 4-5 hours excice
+**Geo DNS:** Since low latency is crucial in a gaming environment, we will use Geo DNS to route the request to the nearest data center. AWS offers Geo DNS in a Route 53 configuration.
+
+**Gateway:** We will use AWS ALB as a gateway solution. It offers us HTTPS support for secure communication and load balancing.
+
+**Game Server:** The game server hosts the game match. Every player playing the same match is connected to the same server. A table maintains a map between the match and the server's URI to route the users to the correct server. The game server can scale on demand, and we can add or remove the server from our table. We will need bi-directional communication to achieve real-time. The Game server will keep the game score in memory for fast read and write. As mentioned, in gaming, the low-latency is crucial. While keeping the score in memory, we write through the disk using the [write-ahead log](https://en.wikipedia.org/wiki/Write-ahead_logging) technique to throw the disk. That way, we can persist the score on the disk in case of a crash. Once the match finish, the game server post the score to the Leaderboard Microservice. We can only trust our internal Game Server to update the score since we can't blindly trust the score coming from the client side. 
+
+We use NodeJS for game service since it supports web sockets and real-time solutions. In addition, Nodejs servers use an Even-Loop architecture that lets them handle thousands of requests and connections per minute.
+
+**Leaderboard Microservice:** This microservice operates CRUD on the leaderboard scores. On each Score update, it publishes it to a Kafka Queue. Using this asynchronous communication lets us have a faster write.
+
+**Score Queue: **
+
+
+### Follow Up
+
+We can easily spend days designing the perfect leaderboard. But, since it's 4-5 hours of exercise, we defined requirements, our API and a high-level architecture. There are a few things that we could dive deep into if we had additional time:
+
+-Using geo-sharding to scale our database and keep the data closer to the user geographically
+-Deep dive into how Redis Sorted Set uses Skip tables to give access to the top K score in a case-constant time.
+-Partionne will use our Kafka cluster to guarantee the order and the deliveries of the message to our Redis Cluster.
+
+
