@@ -94,7 +94,7 @@ We can use a REST API since it's widely used and supported. A system like this o
 
 **Fetching the leaderboards:** Users can query and see the different leaderboards. Filters are specified in the query param. The response is paginated since we can have a long list of leaderboards.
 
-    GET /v1/games/{gameid}/leaderboards?type={ recent | weekly | monthly | all-time}&group={groupId}&page={page}&size={paginationSize}
+    GET /v1/games/{gameid}/leaderboards?timeframe={recent | weekly | all-time}&group={groupId}&page={page}&size={paginationSize}
     
     Response body: {
 	    leaderboards: {
@@ -107,7 +107,8 @@ We can use a REST API since it's widely used and supported. A system like this o
 		nextURL: url of next set of leaderboards
 	}
  
-**Fetching the score for a specific:** Users can see the score for a specific Leaderboard. They can also specify a set of user IDs they want to see.
+**Fetching the score for a specific leaderboard:** Users can see the score for a specific Leaderboard and specify a set of user IDs they want to see.
+
      GET /v1/games/{gameid}/leaderboards/{leaderboardId}/scores&playerIds={userId[]}&page={page}&size={paginationSize}
     
     Response body: {
