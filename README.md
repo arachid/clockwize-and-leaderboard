@@ -187,7 +187,7 @@ To handle multiple queries simultaneously, Redis uses an [event-loop architectur
 
 We can easily spend weeks designing the perfect leaderboard system. However, since it's a 4-5 hour exercise, we defined the requirements, our API, and a high-level architecture. There are a few things that deserve to dive deeper into if we have additional time:
 
-- Using geo-sharding to scale our database and keep the data closer to the users geographically
+- Using geo-sharding to scale our database and keep the data closer to the users geographically.
 - Deep dive into how Redis Sorted Set uses Skip tables to access the top K score in an O(K) time and makes score updates in an O(log n), making it very efficient.
 - Define a partitioning strategy in our Kafka cluster to guarantee the order of message delivery to our Redis Cluster and a consistent score.
 - Other features: authentication and fetching user info (name, picture, country) while fetching user scores.
