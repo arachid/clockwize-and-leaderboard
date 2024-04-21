@@ -141,7 +141,7 @@ We use NodeJS for game service since it supports web sockets and real-time solut
 
 **Leaderboard Microservice:** This microservice operates CRUD on the leaderboard and scores. Each Score update from our Game Server is published to a Kafka Queue. Using this asynchronous communication lets us write faster. The technologies used to write this microservice only matter a little for this service. Since Java has great frameworks for implementing microservices like Spring Cloud, we decided to go with this stack here. Since it's a stateless service, we can easily horizontally scale it using auto-scaling.
 
-**Score Queue:** This is used to collect the score. We are using Kafka because it's a popular and reliable solution for streaming messages. Whit this queue, we can independently scale our producers (Leaderboard Microservice) and our consumers (Score Agregatore). Kafka offers scalability using its partition system and is highly available with partition replications.
+**Score Queue:** This is used to collect the score. We are using Kafka because it's a popular and reliable solution for streaming messages. With this queue, we can independently scale our producers (Leaderboard Microservice) and our consumers (Score Agregatore). Kafka offers scalability using its partition system and is highly available with partition replications.
 
 **Score Aggregator:** Subscribe to new scores, aggregate the result and pre-process the scores for the different time frames: recent, weekly, monthly and all-time leaderboard. That way, the pre-processed result returns fast when the users query scores. Apache Spark is indeed well-suited for real-time stream processing, especially when used in combination with Apache Kafka. 
 
@@ -165,19 +165,21 @@ The leaderboard will consist of a list of eliminations/scores:
 ```
 
 A score looks like this:
-- userId: a [Twitter snowflake](https://en.wikipedia.org/wiki/Snowflake_ID) id of size 8 bytes
-- score: an integer of 4 bytes
-- rank: an integer of 4 bytes
+- userId: a [Twitter snowflake](https://en.wikipedia.org/wiki/Snowflake_ID) id of size 64 bits
+- score: an integer of 32 bits
+- rank: an integer of 32 bits
 
-Total size per score: 16 byte
+Total size per score entry ~ 128 bits ~ 16 bytes
 
-Since our requirement is 10 million concurrent users, we can assume that the total number of users is 50 times that, so 500 million users. By the way, 500 million users represent the number of registered users in Fortnite.
+Interesting fact: 500 million users represent the number of registered users in Fortnite (active and inactive combined). Let's use this number for our estimation.
 
 `500 000 000 * 16bytes = 8 GB`
 
-To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can double the size to 16 GB for the pointers, indexes and other overhead.
+To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can double the size to 16 GB for the pointers, indexes and other overheads.
 
-Modern hardware can easily handle 16 GB of memory. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. We can optimize that; we don't need to load inactive users. However, our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of entries for a major game like Fortnite with low latency.
+Modern hardware can easily handle 16 GB of memory in one machine. However, we will use multiple machines for redundancy in our Redis cluster. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. Our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of users for a major game like Fortnite with low latency.
+
+To handle multiple queries simultaneously, Redis uses an [event-loop architecture](https://en.wikipedia.org/wiki/Event_loop), well-suited to handling thousands of requests per second per [redis node](https://redis.io/docs/latest/develop/reference/clients/).
 
 **Reconciliation: ** We can set up a daily cron job that replays some score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system consistency and detect bugs.
 
