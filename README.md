@@ -50,6 +50,7 @@ Leaderboards are in almost any multiplayer video game. We have a task to design 
 - **Match:** match for a specific game.
 - **Leaderboard:** a set of scores related to the same purpose: same game, same match, same friend group or same timeframe...
 - **Score:** consist of the three properties:
+  
 	{
 	    userId: the id of the player
 	    score: the number of eliminations and other points
