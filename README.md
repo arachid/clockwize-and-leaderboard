@@ -50,13 +50,14 @@ Leaderboards are in almost any multiplayer video game. We have a task to design 
 - **Match:** match for a specific game.
 - **Leaderboard:** a set of scores related to the same purpose: same game, same match, same friend group or same timeframe...
 - **Score:** consist of the three properties:
-  
-	{
-	    userId: the id of the player
-	    score: the number of eliminations and other points
-	    rank: his global rank for this specific leaderboard.
-	}
 
+```
+{
+    userId: the id of the player.
+    score: the number of eliminations and other points.
+    rank: his global rank for this specific leaderboard.
+}
+```
 ### API
 
 We can use a REST API since it's widely used and supported. A system like this one can have many endpoints: login, fetching user information, and fetching game information. But we will focus on the four primary endpoints: creating a leaderboard, updating the score of a leaderboard, fetching leaderboards and fetching scores. All the endpoints require authentification, and our backend will verify that a specific user is authorized to access this leaderboard.
@@ -177,14 +178,13 @@ To be conservative, since Redis Sorted Set uses a skip list and hashmap, we can 
 
 Modern hardware can easily handle 16 GB of memory load. 16 GB is our worst-case scenario: load in memory all-time scores for all the registered users of a major game like Fortnite. We can optimize that; we don't need to load inactive users. However, our rough estimation demonstrates that we can use an in-memory solution to handle hundreds of millions of entries for a major game like Fortnite with low latency.
 
-**Reconciliation: ** We can set up a daily cron job that replays the score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system consistency and detect bugs.
-
+**Reconciliation: ** We can set up a daily cron job that replays some score updates from our Kafka queue and verifies that the score matches what we have in the database. That way, we can monitor our system consistency and detect bugs.
 
 ### Follow Up
 
 We can easily spend weeks designing the perfect leaderboard system. However, since it's a 4-5 hour exercise, we defined the requirements, our API, and a high-level architecture. There are a few things that deserve to dive deeper into if we have additional time:
 
--Using geo-sharding to scale our database and keep the data closer to the users geographically
--Deep dive into how Redis Sorted Set uses Skip tables to access the top K score in an O(K) time and makes score updates in an O(log n), making it very efficient.
--Define a partitioning strategy in our Kafka cluster to guarantee the order of message delivery to our Redis Cluster and a consistent score.
--Other features: Authentication and fetching user info (name, picture, country) while fetching users scores.
+- Using geo-sharding to scale our database and keep the data closer to the users geographically
+- Deep dive into how Redis Sorted Set uses Skip tables to access the top K score in an O(K) time and makes score updates in an O(log n), making it very efficient.
+- Define a partitioning strategy in our Kafka cluster to guarantee the order of message delivery to our Redis Cluster and a consistent score.
+- Other features: authentication and fetching user info (name, picture, country) while fetching user scores.
