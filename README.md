@@ -17,24 +17,26 @@ For instance, the 3x4 matrix below:
 
 We would make a string like this “2, 3, 4, 8, 12, 10, 6, 0, 1, 5, 7, 9”.
 
-This problem can be solved iteratively and recursively. We used the recursive approach to make the code concise and easy to read. We traverse to the array, and when we hit a size boundary or a visited cell, we change direction following clockwise directions. When we can't move anymore, the recursion ends.
+This problem can be solved iteratively and recursively. **We wrote the two approaches to compare them.** The recursive approach is more concise than the iterative one. However, the recursive approach takes more memory because of the recursive function stack and the additional visited array.
+
+We traverse to the array, and when we hit a size boundary or a visited cell, we change direction following clockwise directions. When we can't move anymore, the iteration or the recursion ends.
 
 **Time Complexity:** O(n) since we are traversing each element once.
 
-**Memory Complexity:** O(n) since we have to create a visited matrix.
+**Memory Complexity:** O(1) for the iterative solution and O(n) for the recursive since we are creating a visited matrix and because of the recursive function stack.
 
 **Test coverage:** 100% with multiple scenarios: square, rectangle, one line, one column & empty matrix.
 
-**Limitation:** For this exercise, we decided to support only rectangle and square matrices. However, we can extend this code to support other shapes (e.g. triangles shapes) or add validation for unsupported shapes.
+**Limitation:** We decided to support only rectangle and square matrices for this exercise. However, we can extend this code to support other shapes (e.g. triangles shapes) or add validation for unsupported shapes.
 
 ## Question 2: Leaderboard System Design
 
 Leaderboards are in almost any multiplayer video game. We have a task to design a leaderboard system for a video game company with over 10 million concurrent players.
 
 ### Fonctionnal Requirements
-- Leaderboards are based on the total number of eliminations across all games. Each elimination counts for a point and eacrease the score.
-- There are four supported games and each leaderboard supports a game
-- System should Have daily / weekly / all-time aggregations
+- Leaderboards are based on the total number of eliminations across all games. Each elimination counts for a point, which increases the score.
+- There are four supported games, and each leaderboard supports a game.
+- The system should have daily, weekly, and all-time aggregations.
 - Have user-driven filtering capabilities (friends, groups, recently played with, etc)
 
 ### Non-Functional Requirements:
@@ -46,7 +48,7 @@ Leaderboards are in almost any multiplayer video game. We have a task to design 
 
 ### Entities
 
-- **Game:**  represents a specific game. It can be Fortnite, League of Legends or any other game.
+- **Game:** represents a specific game. It can be Fortnite, League of Legends, Call Of Duty or any other game.
 - **Match:** match for a specific game.
 - **Leaderboard:** a set of scores related to the same purpose: same game, same match, same friend group or same timeframe...
 - **Score:** consist of the three properties:
@@ -60,9 +62,9 @@ Leaderboards are in almost any multiplayer video game. We have a task to design 
 ```
 ### API
 
-We can use a REST API since it's widely used and supported. A system like this one can have many endpoints: login, fetching user information, and fetching game information. But we will focus on the four primary endpoints: creating a leaderboard, updating the score of a leaderboard, fetching leaderboards and fetching scores. All the endpoints require authentification, and our backend will verify that a specific user is authorized to access this leaderboard.
+We can use a REST API since it's widely used and supported. A system like this one can have many endpoints: login, fetching user information, and fetching game information. But we will focus on the four primary endpoints: creating a leaderboard, updating the score of a leaderboard, fetching leaderboards and fetching scores. All the endpoints require authentification, and our backend will verify that a specific user is authorized to access the requested leaderboard.
 
-**Create a new leaderboard:** This endpoint is used to create a leaderboard. A leaderboard can be created for multiple purposes, such as a global all-time game, a weekly leaderboard, a private group of friends, etc. We will restrict access to creating an all-time leaderboard and other big leaderboards only internally since they consume a lot of resources.
+**Create a new leaderboard:** This endpoint is used to create a leaderboard. A leaderboard can be created for multiple purposes, such as a global all-time game, a weekly leaderboard, a private group of friends, etc. We will restrict access to creating an all-time leaderboard and other big leaderboards only internally since they consume a lot of resources (at the end of this design doc, we do memory estimation for all-time leaderboards).
 
     POST /v1/games/{gameId}/leaderboards
     
@@ -79,9 +81,9 @@ We can use a REST API since it's widely used and supported. A system like this o
     201 Created if leaderboard created
     400 BAD Request if the request is malformed
 
-**Update the score in a specific leaderboard:** Once a match is completed, we send the score to update a specific leaderboard by specifying the leaderboard.
+**Update the score in a specific leaderboard:** Once a match is completed, we send the scores. Our backend will have an aggregators to update the affected leaderboards.
 
-    POST /v1/games/{gameId}/leaderboards/{leaderboardId}
+    POST /v1/games/{gameId}/leaderboards/scores
     
     Request body: {
     	scores: Scores[]
