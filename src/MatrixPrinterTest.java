@@ -65,6 +65,16 @@ class MatrixPrinterTest {
     }
 
     @Test()
+    void shouldHandleOneElement() {
+        int[][] emptyMatrix = new int[][]{{777}};
+        String recursiveResult = MatrixPrinter.recursiveArrayClockWise(emptyMatrix);
+        String iterativeResult = MatrixPrinter.iterativeArrayClockWise(emptyMatrix);
+        String expected = "777";
+        assertEquals(recursiveResult, expected);
+        assertEquals(iterativeResult, expected);
+    }
+
+    @Test()
     void shouldHandleEmptyMatrix() {
         int[][] emptyMatrix = new int[][]{};
         String recursiveResult = MatrixPrinter.recursiveArrayClockWise(emptyMatrix);
